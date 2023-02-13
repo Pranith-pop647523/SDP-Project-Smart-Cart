@@ -168,6 +168,7 @@ def get_barcode_scan(barcodeno):
     # Code to get the barcode product name
     return (barcodeProduct[barcodeno], productPrice[barcodeno])
 
+ 
 
 def update_file():  # already done in barcode scanner
     while True:
