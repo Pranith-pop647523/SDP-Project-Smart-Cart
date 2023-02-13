@@ -13,12 +13,25 @@ itemlist = {
 
 }
 
+priceList = {
+    '5012345678900': '10',
+    '0076950450479': '20'
 
-def update_cart(item):
-    if item not in itemlist:
-        pass
+}
+
+
+def get_name(barcode_id):
+    if barcode_id not in itemlist:
+        return 'item not recognized'
     else:
-        return itemlist[item]
+        return itemlist[barcode_id]
+
+
+def get_price(barcode_id):
+    if barcode_id not in priceList:
+        return 'nil'
+    else:
+        return itemlist[barcode_id]
 
 
 def main():
@@ -53,8 +66,6 @@ def main():
             barcodeType = barcode.type
             # draw the barcode data and barcode type on the image
 
-            update_cart(barcodeData)
-
             text = "{} ({})".format(barcodeData, barcodeType)
             cv2.putText(frame, text, (x, y - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
@@ -62,7 +73,9 @@ def main():
             # the timestamp + barcode to disk and update the set
             if barcodeData not in found:
                 csv = open('barcodes.txt', "w")
-                csv.write(barcodeData + "\n")
+
+                csv.write(get_name(barcodeData) + "," +
+                          get_price(barcodeData)+"\n")
                 csv.flush()
                 found.add(barcodeData)
                 csv.close()

@@ -4,10 +4,14 @@ import customtkinter
 import barcode_scanner as brs
 import time
 import os
+from PIL import Image
 
 
 BG_COL = '#000000'
 TEXT_COL = '#FFFFFF'
+
+
+productFrames = {}
 
 barcodeProduct = {
     '5012345678900': 'item1',
@@ -15,8 +19,8 @@ barcodeProduct = {
 
 }
 productPrice = {
-    '5012345678900': 10,
-    '0076950450479': 20
+    '5012345678900': '10',
+    '0076950450479': '20'
 
 }
 
@@ -30,9 +34,13 @@ root = tk.Tk()
 root.title("Shopping Cart")
 root.option_add("*Font", "Poppins 12 ")
 
+
 # Configure first column
 root.geometry('800x480')
 root.config(bg=BG_COL)
+
+
+remove_image = customtkinter.CTkImage(light_image=Image.open("bin.png"))
 
 # Top line
 
@@ -191,8 +199,50 @@ def update_cart(scroll_frame):
         product, price = get_products()
 
         print('a')
-        tk.Label(scroll_frame, text=product, bg='black').pack(anchor='w')
+
+        check = ProductFrame(scroll_frame, 'Product 1', 10, 1)
+
+        check.pack(anchor='w')
         root.update()
+
+
+class ProductFrame(tk.Frame):
+    def __init__(self, parent, product_name, price, quantity,  *args, **kwargs):
+        tk.Frame.__init__(self, parent, bg='black', *args, **kwargs)
+
+        self.product_name = product_name
+        self.price = price
+        self.quantity = quantity
+
+        self.product_label = tk.Label(self, text=self.product_name, bg='black')
+        self.price_label = tk.Label(self, text=f'${self.price}', bg='black')
+        self.quantity_label = tk.Label(
+            self, text=f'{self.quantity}', bg='black')
+        self.quantity_button_up = customtkinter.CTkButton(
+            self, width=15,  fg_color='#2D2A2A', text='+', anchor='w', font=('Poppins', 10), command=self.increase_quantity)
+        self.quantity_button_down = customtkinter.CTkButton(
+            self, width=15, fg_color='#2D2A2A', text='-', anchor='w', font=('Poppins', 10), command=self.decrease_quantity)
+        self.remove = customtkinter.CTkButton(
+            self, width=15, fg_color='#2D2A2A', image=remove_image, anchor='w', font=('Poppins', 10), command=self.remove_item)
+
+        self.product_label.pack(side='left', padx=50)
+        self.quantity_button_down.pack(side='left', padx=5)
+        self.quantity_label.pack(side='left', padx=5)
+        self.quantity_button_up.pack(side='left', padx=5)
+        self.price_label.pack(side='left', padx=50)
+        self.remove.pack(side='left', padx=5)
+
+    def increase_quantity(self):
+        self.quantity += 1
+        self.quantity_label.config(text=f'{self.quantity}')
+
+    def decrease_quantity(self):
+        self.quantity -= 1
+        self.quantity_label.config(text=f'{self.quantity}')
+
+    def remove_item(self):
+
+        self.pack_forget()
 
 
 def barcode_run():
@@ -209,7 +259,7 @@ def update_gui():
 
         update_cart(scrollable_frame)
         root.update()
-        time.sleep(1)
+        time.sleep(.75)
 
 
 start_thread()
