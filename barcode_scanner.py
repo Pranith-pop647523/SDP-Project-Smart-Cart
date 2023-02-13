@@ -1,4 +1,3 @@
-# import the necessary packages
 from imutils.video import VideoStream
 from pyzbar import pyzbar
 import argparse
@@ -6,32 +5,39 @@ import datetime
 import imutils
 import time
 import cv2
+from collections import defaultdict
+
+
+def def_value():
+    return "item not found"
+
+
+itemlist = defaultdict(def_value)
+priceList = defaultdict(def_value)
 
 itemlist = {
+    '0512345000107': 'item0',
     '5012345678900': 'item1',
-    '0076950450479': 'item2'
+    '0076950450479': 'item2',
+    '0036000291452': 'item3'
 
 }
 
 priceList = {
     '5012345678900': '10',
-    '0076950450479': '20'
+    '0076950450479': '20',
+    '0512345000107': '30',
+    '0036000291452': '40'
 
 }
 
 
 def get_name(barcode_id):
-    if barcode_id not in itemlist:
-        return 'item not recognized'
-    else:
-        return itemlist[barcode_id]
+    return itemlist[barcode_id]
 
 
 def get_price(barcode_id):
-    if barcode_id not in priceList:
-        return 'nil'
-    else:
-        return itemlist[barcode_id]
+    return priceList[barcode_id]
 
 
 def main():
@@ -75,7 +81,7 @@ def main():
                 csv = open('barcodes.txt', "w")
 
                 csv.write(get_name(barcodeData) + "," +
-                          get_price(barcodeData)+"\n")
+                          get_price(barcodeData)+",\n")
                 csv.flush()
                 found.add(barcodeData)
                 csv.close()
