@@ -1,31 +1,51 @@
 import tkinter as tk
 
 
-class ProductFrame(tk.Frame):
-    def __init__(self, parent, product_name, price, quantity, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
+class ProductFrame:
+    def __init__(self, master, product_name, price, quantity):
+        self.master = master
+        self.frame = tk.Frame(master)
+        self.product_name = tk.Label(self.frame, text=product_name)
+        self.price = tk.Label(self.frame, text="Price: $" + str(price))
+        self.price_value = price
+        self.quantity = tk.Label(self.frame, text="Quantity: " + str(quantity))
+        self.quantity_value = quantity
+        self.increase_button = tk.Button(
+            self.frame, text="+", command=self.increase_quantity)
+        self.decrease_button = tk.Button(
+            self.frame, text="-", command=self.decrease_quantity)
 
-        self.product_name = product_name
-        self.price = price
-        self.quantity = quantity
-
-        self.product_label = tk.Label(self, text=self.product_name)
-        self.price_label = tk.Label(self, text=f'${self.price}')
-        self.quantity_label = tk.Label(self, text=f'Quantity: {self.quantity}')
-        self.quantity_button = tk.Button(
-            self, text='+', command=self.increase_quantity)
-
-        self.product_label.pack(side='left')
-        self.price_label.pack(side='left')
-        self.quantity_label.pack(side='left')
-        self.quantity_button.pack(side='right')
+        self.product_name.pack()
+        self.price.pack()
+        self.quantity.pack()
+        self.increase_button.pack(side="left")
+        self.decrease_button.pack(side="left")
 
     def increase_quantity(self):
-        self.quantity += 1
-        self.quantity_label.config(text=f'Quantity: {self.quantity}')
+        self.quantity_value += 1
+        self.quantity.configure(text="Quantity: " + str(self.quantity_value))
+        self.price_value = self.price_value * self.quantity_value
+        self.price.configure(text="Price: $" + str(self.price_value))
+
+    def decrease_quantity(self):
+        if self.quantity_value > 0:
+            self.quantity_value -= 1
+            self.quantity.configure(
+                text="Quantity: " + str(self.quantity_value))
+            self.price_value = self.price_value / self.quantity_value
+            self.price.configure(text="Price: $" + str(self.price_value))
 
 
-root = tk.Tk()
-product_frame = ProductFrame(root, 'Product 1', 10, 1)
-product_frame.pack()
-root.mainloop()
+class ShoppingCartApp:
+    def __init__(self, master):
+        self.master = master
+        self.frames = []
+        self.total_price = 0
+        self.total_price_label = tk.Label(
+            master, text="Total Price: $" + str(self.total_price))
+        self.total_price_label.pack()
+
+    def add_product_frame(self, product_name, price, quantity):
+        new_frame = ProductFrame(self.master, product_name, price, quantity)
+        self.frames.append(new_frame)
+        new_frame.frame.pack

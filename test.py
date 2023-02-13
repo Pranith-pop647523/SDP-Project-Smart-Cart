@@ -10,24 +10,12 @@ from PIL import Image
 BG_COL = '#000000'
 TEXT_COL = '#FFFFFF'
 
+frames = {}  # reference to each product frame created
 
-productFrames = {}
+totals = {}  # calc total
 
-barcodeProduct = {
-    '5012345678900': 'item1',
-    '0076950450479': 'item2'
-
-}
-productPrice = {
-    '5012345678900': '10',
-    '0076950450479': '20'
-
-}
-
-item_cnt = 10
 TotalVal = 0
-SubtotalVal = 0
-TaxVal = 0
+ItemCnt = 0
 
 
 root = tk.Tk()
@@ -61,26 +49,14 @@ label_1.place(x=39.75, y=35.42, width=129.84, height=18)
 # Item count
 
 
-label_2 = tk.Label(root, text=f"You have {item_cnt} items in your cart ", bg=BG_COL,
-                   fg=TEXT_COL, font=("Nonita", 9), anchor='w')
-label_2.place(x=39.75, y=52.51, width=146.92, height=13)
+Items = tk.Label(root, text=f"You have {ItemCnt} items in your cart ", bg=BG_COL,
+                 fg=TEXT_COL, font=("Nonita", 9), anchor='w')
+Items.place(x=39.75, y=52.51, width=146.92, height=13)
 
 # First frame
 
 ProductFrame = tk.Frame(root, bg=BG_COL, borderwidth=1, relief="groove")
 ProductFrame.place(x=29, y=70.51, width=418, height=120)
-
-'''products = tk.Listbox(ProductFrame, selectmode="multiple")
-products.pack(fill="both", expand=True)
-
-for item in ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", '4', "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", '4']:
-    products.insert("end", item)'''
-
-'''scroll = tk.Scrollbar(ProductFrame, command=products.yview)
-scroll.pack(side="right", fill="y")'''
-
-
-# Products list
 
 
 # Checkout frame
@@ -102,17 +78,18 @@ Total = tk.Label(root, text="Total", bg=BG_COL,
 Total.place(x=489.98, y=372.39, width=94.3, height=14)
 
 
-TotalAmt = tk.Label(root, text=f"${TotalVal}", bg=BG_COL,
-                    fg=TEXT_COL, font=("Poppins", 9), anchor='e')
-TotalAmt.place(x=634.85, y=354.93, width=94.3, height=14)
-
-SubtotalAmt = tk.Label(root, text=f"${SubtotalVal}", bg=BG_COL,
+SubtotalAmt = tk.Label(root, text=f"${0}", bg=BG_COL,
                        fg=TEXT_COL, font=("Poppins", 9), anchor='e')
 SubtotalAmt.place(x=634.85, y=336.49, width=94.3, height=14)
 
-TaxAmt = tk.Label(root, text=f"${TaxVal}", bg=BG_COL,
+TaxAmt = tk.Label(root, text=f"${0}", bg=BG_COL,
                   fg=TEXT_COL, font=("Poppins", 9), anchor='e')
-TaxAmt.place(x=634.85, y=372.39, width=94.3, height=14)
+TaxAmt.place(x=634.85, y=354.93, width=94.3, height=14)
+
+
+TotalAmt = tk.Label(root, text=f"${0}", bg=BG_COL,
+                    fg=TEXT_COL, font=("Poppins", 9), anchor='e')
+TotalAmt.place(x=634.85, y=372.39, width=94.3, height=14)
 
 
 CheckoutFrame = tk.Frame(root, bg=BG_COL, borderwidth=0, relief="groove")
@@ -158,8 +135,6 @@ def get_products():  # gets product and price , use for display
         prod = file.readline()
 
     product_and_price = prod.split(',')
-    print(product_and_price)
-
     product = product_and_price[0]
     price = product_and_price[1]
     print(product, price)
@@ -170,15 +145,21 @@ def get_products():  # gets product and price , use for display
 
 
 def update_cart(scroll_frame):
+    global TotalVal
 
     if os.stat("barcodes.txt").st_size != 0:
 
         product, price = get_products()
+        price = int(price)
 
         print('a')
 
         check = ProductFrame(scroll_frame, product, price, 1)
 
+        frames[check.get_product()] = check
+        TotalVal = TotalVal + (check.get_price())*(check.get_quantity())
+        print(check.get_quantity())
+        SubtotalAmt.configure(text=TotalVal)
         check.pack(anchor='w')
         root.update()
 
@@ -188,8 +169,11 @@ class ProductFrame(tk.Frame):
         tk.Frame.__init__(self, parent, bg='black', *args, **kwargs)
 
         self.product_name = product_name
+        self.fixed = price
         self.price = price
         self.quantity = quantity
+        global ItemCnt
+        ItemCnt += 1
 
         self.product_label = tk.Label(self, text=self.product_name, bg='black')
         self.price_label = tk.Label(self, text=f'${self.price}', bg='black')
@@ -210,15 +194,42 @@ class ProductFrame(tk.Frame):
         self.remove.pack(side='left', padx=5)
 
     def increase_quantity(self):
+        global TotalVal
+        global ItemCnt
+        TotalVal += self.fixed
+        ItemCnt += 1
         self.quantity += 1
         self.quantity_label.config(text=f'{self.quantity}')
+        self.price = int(self.fixed) * int(self.quantity)
+        self.price_label.configure(text=(self.price))
 
     def decrease_quantity(self):
-        self.quantity -= 1
-        self.quantity_label.config(text=f'{self.quantity}')
+        global TotalVal
+        global ItemCnt
+        if self.quantity > 1:
+            ItemCnt -= 1
+            TotalVal -= self.fixed
+            self.quantity -= 1
+            self.quantity_label.config(text=f'{self.quantity}')
+            self.price = int(self.fixed) * int(self.quantity)
+            self.price_label.configure(text=str(self.price))
+
+    def get_product(self):
+        return self.product_name
+
+    def get_price(self):  # getters
+        return int(self.price)
+
+    def get_quantity(self):
+        return int(self.quantity)
 
     def remove_item(self):
-
+        global TotalVal
+        global ItemCnt
+        TotalVal -= self.fixed*self.quantity
+        ItemCnt -= self.quantity
+        self.quantity = 0
+        self.price = 0
         self.pack_forget()
 
 
@@ -233,8 +244,18 @@ def start_thread():  # run the scanner in the background
 
 def update_gui():
     while True:
-
+        global TotalVal
+        global ItemCnt
         update_cart(scrollable_frame)
+        SubtotalAmt.configure(text=f'${(TotalVal)}')
+        TaxAmt.configure(text=f'${(TotalVal * 0.1)}')
+        TotalAmt.configure(text=f'${(TotalVal + (TotalVal * 0.1))}')
+        if ItemCnt == 1:
+            Items.configure(
+                text=f'You have {ItemCnt} item in your cart')
+        else:
+            Items.configure(
+                text=f'You have {ItemCnt} items in your cart')
         root.update()
         time.sleep(.5)
 
