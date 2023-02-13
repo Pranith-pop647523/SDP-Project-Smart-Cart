@@ -40,7 +40,7 @@ root.geometry('800x480')
 root.config(bg=BG_COL)
 
 
-remove_image = customtkinter.CTkImage(light_image=Image.open("bin.png"))
+remove_image = tk.PhotoImage(file="bin_white.png")
 
 # Top line
 
@@ -70,14 +70,14 @@ label_2.place(x=39.75, y=52.51, width=146.92, height=13)
 ProductFrame = tk.Frame(root, bg=BG_COL, borderwidth=1, relief="groove")
 ProductFrame.place(x=29, y=70.51, width=418, height=120)
 
-products = tk.Listbox(ProductFrame, selectmode="multiple")
+'''products = tk.Listbox(ProductFrame, selectmode="multiple")
 products.pack(fill="both", expand=True)
 
 for item in ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", '4', "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", '4']:
-    products.insert("end", item)
+    products.insert("end", item)'''
 
-scroll = tk.Scrollbar(ProductFrame, command=products.yview)
-scroll.pack(side="right", fill="y")
+'''scroll = tk.Scrollbar(ProductFrame, command=products.yview)
+scroll.pack(side="right", fill="y")'''
 
 
 # Products list
@@ -145,36 +145,11 @@ Stop = customtkinter.CTkButton(
 Stop.place(x=490, y=203)
 
 
-def increment_value(label_name):
-    value = int(label_name.cget("text"))
-    value += 1
-    label_name.config(text=str(value))
-
-
-def decrement_value(label_name):
-    value = int(label_name.cget("text"))
-    value -= 1
-    label_name.config(text=str(value))
-
-
 scrollable_frame = customtkinter.CTkScrollableFrame(
     root, width=418, height=120, fg_color='black', label_anchor='w')
 scrollable_frame.place(x=29, y=70.51)
 
 # Adding 10 items to the frame
-
-
-def get_barcode_scan(barcodeno):
-    # Code to get the barcode product name
-    return (barcodeProduct[barcodeno], productPrice[barcodeno])
-
- 
-
-def update_file():  # already done in barcode scanner
-    while True:
-        product, price = get_barcode_scan()
-        with open("barcodes.txt", "w") as file:
-            file.write(f'{product},{price}' + "\n")
 
 
 def get_products():  # gets product and price , use for display
@@ -183,9 +158,10 @@ def get_products():  # gets product and price , use for display
         prod = file.readline()
 
     product_and_price = prod.split(',')
+    print(product_and_price)
 
     product = product_and_price[0]
-    price = product_and_price[0]
+    price = product_and_price[1]
     print(product, price)
 
     open("barcodes.txt", "w").close()
@@ -201,7 +177,7 @@ def update_cart(scroll_frame):
 
         print('a')
 
-        check = ProductFrame(scroll_frame, 'Product 1', 10, 1)
+        check = ProductFrame(scroll_frame, product, price, 1)
 
         check.pack(anchor='w')
         root.update()
@@ -220,11 +196,11 @@ class ProductFrame(tk.Frame):
         self.quantity_label = tk.Label(
             self, text=f'{self.quantity}', bg='black')
         self.quantity_button_up = customtkinter.CTkButton(
-            self, width=15,  fg_color='#2D2A2A', text='+', anchor='w', font=('Poppins', 10), command=self.increase_quantity)
+            self, width=15, height=10,  fg_color='#2D2A2A', text='+', anchor='w', font=('Poppins', 10), command=self.increase_quantity)
         self.quantity_button_down = customtkinter.CTkButton(
-            self, width=15, fg_color='#2D2A2A', text='-', anchor='w', font=('Poppins', 10), command=self.decrease_quantity)
-        self.remove = customtkinter.CTkButton(
-            self, width=15, fg_color='#2D2A2A', image=remove_image, anchor='w', font=('Poppins', 10), command=self.remove_item)
+            self, width=15, height=10,  fg_color='#2D2A2A', text='-', anchor='w', font=('Poppins', 10), command=self.decrease_quantity)
+        self.remove = tk.Button(
+            self,  image=remove_image, relief='flat', borderwidth=0, font=('Poppins', 10), command=self.remove_item)
 
         self.product_label.pack(side='left', padx=50)
         self.quantity_button_down.pack(side='left', padx=5)
@@ -250,7 +226,7 @@ def barcode_run():
     brs.main()
 
 
-def start_thread():
+def start_thread():  # run the scanner in the background
     update_thread = threading.Thread(target=barcode_run)
     update_thread.start()
 
@@ -260,7 +236,7 @@ def update_gui():
 
         update_cart(scrollable_frame)
         root.update()
-        time.sleep(.75)
+        time.sleep(.5)
 
 
 start_thread()
