@@ -201,7 +201,7 @@ class ProductFrame(tk.Frame):
         self.quantity += 1
         self.quantity_label.config(text=f'{self.quantity}')
         self.price = int(self.fixed) * int(self.quantity)
-        self.price_label.configure(text=(self.price))
+        self.price_label.configure(text=f'${(self.price)}')
 
     def decrease_quantity(self):
         global TotalVal
@@ -212,7 +212,7 @@ class ProductFrame(tk.Frame):
             self.quantity -= 1
             self.quantity_label.config(text=f'{self.quantity}')
             self.price = int(self.fixed) * int(self.quantity)
-            self.price_label.configure(text=str(self.price))
+            self.price_label.configure(text=f'${(self.price)}')
 
     def get_product(self):
         return self.product_name
@@ -257,7 +257,7 @@ def update_gui():
             Items.configure(
                 text=f'You have {ItemCnt} items in your cart')
         root.update()
-        time.sleep(.5)
+        time.sleep(.25)
 
 
 start_thread()
