@@ -1,14 +1,22 @@
 from socket import *
+import sys
 
 IP = '0.0.0.0'
 TAG_PORT = 5000
 UI_PORT = 10000
+TURTLEBOT_IP = ''
+TURTLEBOT_PORT = 15000
 BUFLEN = 512
-TRACK_COMMAND = 'track'
-STOP_COMMAND = 'stop'
-PARK_COMMAND = 'park'
-mode = STOP_COMMAND
+TRACK = 2
+STOP = 1
+PARK = 3
+mode = TRACK
 
+#----Use the following code if you want to input these arguments from the console
+#TAG_PORT = sys.argv[1]
+#UI_PORT = sys.argv[2]
+#TURTLEBOT_IP = sys.argv[3]
+#TURTLEBOT_PORT = sys.argv[4]
 
 # The socket to receive coordinates from the tag
 tagSocket = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP)
@@ -34,20 +42,22 @@ while True:
     #-----Receive data from the UI raspberry pi(Commands)----
     try:
         received2, addr = UISocket.recvfrom(BUFLEN)
-        mode = received2.decode()['command']
-        destination = received2.decode['coordinates']
+        mode = received2.decode()
     except(timeout):
         pass
 
     # Send the coordinates to the turtle bot under the tracking mode
-    if(mode == TRACK_COMMAND):
+    if(mode == TRACK):
+        #tbSocket.sendto(coordinates,(TURTLEBOT_IP,TURTLEBOT_PORT))
         print(coordinates)
+
     
     # Tell the turtlebot to stop under the STOP mode
-    #elif(mode == STOP_COMMAND):
+    #elif(mode == STOP):
+        tbSocket.sendto()
         
     # Tell the turtlebot to go to the parking point
-    #elif(mode == PARK_COMMAND):
+    #elif(mode == PARK):
 
 
     
