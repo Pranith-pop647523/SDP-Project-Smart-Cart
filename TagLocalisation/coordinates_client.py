@@ -15,7 +15,6 @@ BUFLEN = 1024
 #create TCP socket
 dataSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)
 dataSocket.connect((IP,SERVER_PORT))
-
 #connect to serial port of UWB sensor
 DWM = serial.Serial(port="/dev/ttyACM0", baudrate=115200)
 print("Connected to " + DWM.name)
@@ -57,6 +56,7 @@ try:
                     dataSocket.send(toSend.encode())
                     #wait for reply
                     recved = dataSocket.recv(BUFLEN)
+                    
                     if not recved:
                         break
 
@@ -67,3 +67,4 @@ except KeyboardInterrupt:
     DWM.close()
     dataSocket.close()
     print("Stop")
+
