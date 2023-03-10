@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-import FindEnoughSpace
+import find_space
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
@@ -24,8 +24,9 @@ def main():
         rate.sleep()
     try:
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
-        FindEnoughSpace.main()
+        find_space.main()
         spin(pub,rate)
+        pub.unregister
         return
     except rospy.ROSInterruptException:
         pass

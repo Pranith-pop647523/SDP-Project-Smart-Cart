@@ -15,14 +15,15 @@ def callback(msg):
             minVal = msg.ranges[i]
         
     if minVal<0.4:
-        #0 = front, 90 = right, 180 = back, 270 = left
+        #0 = front, 89 = right, 179 = back, 269 = left
         if msg.ranges[0] < rot_min_val:
             rot_min_val = msg.ranges[0]
         if msg.ranges[179] <rot_min_val:
             rot_min_val = msg.ranges[179]
-        if msg.ranges[89] <rot_min_val and msg.ranges[89]>0.1:
+    
+        if msg.ranges[89] <rot_min_val and msg.ranges[89]>0.2:
             rot_min_val = msg.ranges[89]
-        if msg.ranges[269] <rot_min_val and msg.ranges[269]>0.1:
+        if msg.ranges[269] <rot_min_val and msg.ranges[269]>0.2:
             rot_min_val = msg.ranges[269]
 
         if rot_min_val == msg.ranges[0]:
@@ -48,4 +49,5 @@ def main():
     while foundSpace!=True:
         pub.publish(vel)
         rate.sleep()
+    pub.unregister
     sub.unregister
