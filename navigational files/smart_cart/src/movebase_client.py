@@ -21,13 +21,12 @@ import actionlib
 # Brings in the .action file and messages used by the move base action
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import Twist
+import spin
+import client
+import server
 
 def initialise_position():
-    rate = rospy.Rate(10)
-    pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-    move = Twist()
-    move.angular.z = 0.2
-    pub.publish(move)
+    return
 
 
 
@@ -68,7 +67,9 @@ def movebase_client(goal_x ,goal_y):
 if __name__ == '__main__':
     try:
         rospy.init_node('movebase_client_py')
-        initialise_position()
+        spin.main()
+        server.main()
+        client.normal()
        # Initializes a rospy node to let the SimpleActionClient publish and subscribe
         #Top Right
         result = movebase_client(3.497,0.38)
@@ -83,6 +84,7 @@ if __name__ == '__main__':
         if result:
             rospy.loginfo("Goal execution done!")
         #Bottom Right/ Initial position
+        client.park()
         result = movebase_client(0,0)
         if result:
             rospy.loginfo("Goal execution done!")
