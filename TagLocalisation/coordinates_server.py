@@ -10,42 +10,65 @@ FOLLOW = '2'
 PARK = '3'
 mode = FOLLOW
 
+#start coordinates server:
 tagListenSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)
 tagListenSocket.bind((IP,TAG_PORT))
 tagListenSocket.listen()
-print(f'The sever is start, waiting for tag to connect at port {TAG_PORT}')
+print(f'Server started, waiting for tag at port {TAG_PORT}.')
 
+#start ui commands server:
 uiListenSocket = socket(AF_INET,SOCK_STREAM, IPPROTO_TCP)
 uiListenSocket.bind((IP,UI_PORT))
 uiListenSocket.listen()
-print(f'The sever is start, waiting for UI to connect at port {UI_PORT}')
+print(f'Waiting for UI at port {UI_PORT}.')
 
-
-
+#connect to coordinates client:
 tagDataSocket, addr = tagListenSocket.accept()
-print('Accept a tag client to connect:', addr)
+tagDataSocket.settimeout(0.1)
+print('Connected to coordinates client:', addr)
 
+#connect to ui client:
 uiDataSocket, addr = uiListenSocket.accept()
-uiDataSocket.settimeout(5)
-print('Accept a UI client to connect:', addr)
+uiDataSocket.settimeout(0.1)
+print('Connected to ui client:', addr)
+
+#main loop:
 while True:
     try:
+    	#receive command before timeout:
         command = uiDataSocket.recv(BUFLEN)
+        #if a command is received, update mode.
         mode = command.decode()
+        uiDataSocket.send(f'The server received the information {mode}'.encode())
+        if(mode == STOP):
+            print('STOP')
+        elif(mode == FOLLOW):
+            print('FOLLOW')
+        elif(mode == PARK):
+            print('PARK')
     except timeout:
         pass
 
-    if mode == FOLLOW:
-        receivedTag = tagDataSocket.recv(BUFLEN)
-    
-    
-        if not receivedTag:
-            break
-    
-        info = receivedTag.decode()
-        print(f'Recieved the information: {info}')
 
-        tagDataSocket.send(f'The server received the information {info}'.encode())
+    try:
+        receivedTag = tagDataSocket.recv(BUFLEN)
+        coordinates = receivedTag.decode()
+        tagDataSocket.send(f'The server received the information {coordinates}'.encode())
+        
+        print(f'Received coordinates: {coordinates}')
+    except timeout:
+        pass
+        
+        
+    
+    if (mode == FOLLOW):
+        #print coordinates
+        #print(f'Recieved coordinates: {info}')
+        print('Follow mode')
+    
+        
+        
+
 
     elif mode == STOP:
         print('Stop command')
