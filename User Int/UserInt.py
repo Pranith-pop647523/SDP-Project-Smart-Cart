@@ -17,6 +17,7 @@ totals = {}  # calc total
 TotalVal = 0
 ItemCnt = 0
 
+print(os.listdir())
 
 root = tk.Tk()
 root.title("Shopping Cart")

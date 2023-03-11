@@ -4,17 +4,13 @@ import customtkinter
 import barcode_scanner as brs
 import time
 import os
-from client import CommandSocket
 from PIL import Image
 
 
 BG_COL = '#000000'
 TEXT_COL = '#FFFFFF'
-
 frames = {}  # reference to each product frame created
-
 totals = {}  # calc total
-
 TotalVal = 0
 ItemCnt = 0
 
@@ -27,6 +23,7 @@ root.option_add("*Font", "Poppins 12 ")
 # Configure first column
 root.geometry('800x480')
 root.config(bg=BG_COL)
+root.attributes('-fullscreen', True)
 
 
 remove_image = tk.PhotoImage(file="bin_white.png")
@@ -105,26 +102,13 @@ Checkout = customtkinter.CTkButton(
 
 Checkout.pack(anchor='ne')
 
-# socket parameters:
-SERVER_IP = '129.215.2.45'
-SERVER_PORT = 50001
-
-STOP = '1'
-FOLLOW = '2'
-PARK = '3'
-
-cmdSocket = CommandSocket(SERVER_IP, SERVER_PORT)
-
 
 def toggle_button_text(button):
     if button.cget("text") == 'Stop':
         button.configure(text="Follow")
-        cmdSocket.sendCommand(STOP)
 
     else:
         button.configure(text="Stop")
-        cmdSocket.sendCommand(FOLLOW)
-    update_gui()
 
 
 Park = customtkinter.CTkButton(
@@ -275,8 +259,6 @@ def update_gui():
 
 
 start_thread()
+# brs.main()
 update_gui()
 root.mainloop()
-
-# close server socket
-cmdSocket.close()
