@@ -22,14 +22,9 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import Twist
 import spin
-import client
-import server
-
-def initialise_position():
-    return
-
-
-
+from pathlib import Path
+home = str(Path.home())
+import roslaunch
 
 def movebase_client(goal_x ,goal_y):
 
@@ -65,17 +60,22 @@ def movebase_client(goal_x ,goal_y):
 
 # If the python node is executed as main process (sourced directly)
 if __name__ == '__main__':
+    print(home)
     try:
+        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        roslaunch.configure_logging(uuid)
+        launch = roslaunch.parent.ROSLaunchParent(uuid, [home+ "/catkin_ws/src/turtlebot3/turtlebot3_navigation/launch/move_base.launch"])
+        launch.start()
         rospy.init_node('movebase_client_py')
         spin.main()
-        server.main()
-        client.normal()
+        
        # Initializes a rospy node to let the SimpleActionClient publish and subscribe
         #Top Right
         result = movebase_client(3.497,0.38)
         if result:
             rospy.loginfo("Goal execution done!")
         #Bottom Left
+        launch.shutdown()
         result = movebase_client(1.064,2.42)
         if result:
             rospy.loginfo("Goal execution done!")
@@ -84,9 +84,10 @@ if __name__ == '__main__':
         if result:
             rospy.loginfo("Goal execution done!")
         #Bottom Right/ Initial position
-        client.park()
+
         result = movebase_client(0,0)
         if result:
             rospy.loginfo("Goal execution done!")
+        
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
