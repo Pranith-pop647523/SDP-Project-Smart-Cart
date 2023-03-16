@@ -14,9 +14,6 @@ def spin(pub,rate):
 
 def main():
     rate = rospy.Rate(10) # 10hz
-    print("Sleeping until rviz loads")
-    for i in range(0,30):
-        rate.sleep()
     try:
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         spin(pub,rate)
