@@ -1,7 +1,8 @@
 # Smart Cart Navigation
 This assumes that you have ROS set up using the tutorial/worksheet on the SDP site. Master process must be set to the turtlebot.
 ## Map Files
-Place all map files in your home directory **NOT** in catkin_ws
+Place all map files in your home directory **NOT** in catkin_ws.
+Remember to change "image" in map.yaml to your home directory as well.
 
 ## param folder
 Replace param folder in `catkin_ws/src/turtlebot3/turtlebot3_navigation`
