@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-import find_space
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import LaserScan
 
-#TODO callback needs to return the ranges. Try using a class.
-
-
-
+#Aim: Spin once to more accurately place walls
 def spin(pub,rate): 
     
     for i in range(0,60):
@@ -19,13 +14,10 @@ def spin(pub,rate):
 
 def main():
     rate = rospy.Rate(10) # 10hz
-    print("Sleeping until rviz loads")
-    for i in range(0,30):
-        rate.sleep()
     try:
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
-        find_space.main()
         spin(pub,rate)
+        #Leaving a cmd_vel publisher running messes with the movebase nodes
         pub.unregister
         return
     except rospy.ROSInterruptException:

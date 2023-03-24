@@ -1,4 +1,5 @@
 from socket import *
+from socket_server import *
 
 IP = '0.0.0.0'
 
@@ -11,70 +12,54 @@ PARK = '3'
 mode = FOLLOW
 
 #start coordinates server:
-tagListenSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP)
-tagListenSocket.bind((IP,TAG_PORT))
-tagListenSocket.listen()
+coordinatesSocket = SocketServer(IP, TAG_PORT, 0.1, 512) 
 print(f'Server started, waiting for tag at port {TAG_PORT}.')
 
 #start ui commands server:
-uiListenSocket = socket(AF_INET,SOCK_STREAM, IPPROTO_TCP)
-uiListenSocket.bind((IP,UI_PORT))
-uiListenSocket.listen()
+commandsSocket = SocketServer(IP, UI_PORT, 0.1, 512)
 print(f'Waiting for UI at port {UI_PORT}.')
 
 #connect to coordinates client:
-tagDataSocket, addr = tagListenSocket.accept()
-tagDataSocket.settimeout(0.1)
+addr = coordinatesSocket.accept()
 print('Connected to coordinates client:', addr)
 
 #connect to ui client:
-uiDataSocket, addr = uiListenSocket.accept()
-uiDataSocket.settimeout(0.1)
+addr = commandsSocket.accept()
 print('Connected to ui client:', addr)
 
 #main loop:
-while True:
-    try:
+try: 
+    while True:
     	#receive command before timeout:
-        command = uiDataSocket.recv(BUFLEN)
+        command = commandsSocket.receive() #returns None if timeout
         #if a command is received, update mode.
-        mode = command.decode()
-        uiDataSocket.send(f'The server received the information {mode}'.encode())
-        if(mode == STOP):
-            print('STOP')
-        elif(mode == FOLLOW):
-            print('FOLLOW')
-        elif(mode == PARK):
-            print('PARK')
-    except timeout:
-        pass
+        if (command != None):
+            mode = command
+            if(mode == STOP):
+                print('STOP')
+            elif(mode == FOLLOW):
+                print('FOLLOW')
+            elif(mode == PARK):
+                print('PARK')
 
-
-    try:
-        receivedTag = tagDataSocket.recv(BUFLEN)
-        coordinates = receivedTag.decode()
-        tagDataSocket.send(f'The server received the information {coordinates}'.encode())
+        #receve coordinates from tag
+        tagData = coordinatesSocket.receive() #returns None if timeout
+        if (tagData != None):
+            coordinates = tagData
+            print(f'Received coordinates: {coordinates}')
         
-        print(f'Received coordinates: {coordinates}')
-    except timeout:
-        pass
-        
-        
+        if (mode == FOLLOW):
+            print('Follow mode')
+            #publish ros goal
     
-    if (mode == FOLLOW):
-        #print coordinates
-        #print(f'Recieved coordinates: {info}')
-        print('Follow mode')
+        elif mode == STOP:
+            print('Stop command')
+            #cancel ros goal
     
-        
-        
+        elif (mode == PARK):
+            print('Park command')
+            #call parking routine
 
-
-    elif mode == STOP:
-        print('Stop command')
-
-    
-tagDataSocket.close()
-tagListenSocket.close()
-uiDataSocket.close()
-uiListenSocket.close()
+except KeyboardInterrupt:
+    commandsSocket.close()
+    coordinatesSocket.close()
