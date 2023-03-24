@@ -1,7 +1,7 @@
 import threading
 import tkinter as tk
 import customtkinter
-import barcode_scanner as brs
+# import barcode_scanner as brs
 import time
 import os
 from client import CommandSocket
@@ -19,7 +19,7 @@ class interface():
         self.ItemCnt = 0
         self.root = tk.Tk()
         self.root.title("Shopping Cart")
-        self.root.option_add("*Font", "Poppins 12 ")
+        self.root.option_add("*Font", "Nunito 20 ")
         # Configure first column
         self.root.geometry('800x480')
         self.root.config(bg=self.BG_COL)
@@ -32,8 +32,8 @@ class interface():
         self.canvas.create_line(29.38, 27.6, 400+29.38,
                                 27.6, fill=self.TEXT_COL, width=1)
         # Shopping cart title
-        self.label_1 = tk.Label(self.root, text="Shopping Cart", bg=self.BG_COL,
-                                fg=self.TEXT_COL, font=("Poppins", 12), anchor='w')
+        self.label_1 = tk.Label(self.root, text="Basket", bg=self.BG_COL,
+                                fg=self.TEXT_COL, font=("Nunito", 20), anchor='w')
         self.label_1.place(x=39.75, y=35.42, width=129.84, height=18)
         # Item count
         self.Items = tk.Label(self.root, text=f"You have {self.ItemCnt} Items in your cart ", bg=self.BG_COL,
@@ -44,56 +44,36 @@ class interface():
             self.root, bg=self.BG_COL, borderwidth=1, relief="groove")
         self.ProductFrame.place(x=29, y=70.51, width=418, height=120)
         # self.Checkout frame
-        self.canvas.create_line(489.97, 325.55, 489.97+239.18,
-                                325.55, fill=self.TEXT_COL, width=1)
-
-        self.Subtotal = tk.Label(self.root, text="Subtotal", bg=self.BG_COL,
-                                 fg=self.TEXT_COL, font=("Poppins", 9), anchor='w')
-        self.Subtotal.place(x=489.98, y=335.49, width=94.3, height=14)
-
-        self.Tax = tk.Label(self.root, text="Tax", bg=self.BG_COL,
-                            fg=self.TEXT_COL, font=("Poppins", 9), anchor='w')
-        self.Tax.place(x=489.98, y=353.94, width=94.3, height=14)
-
-        self.Total = tk.Label(self.root, text="Total", bg=self.BG_COL,
-                              fg=self.TEXT_COL, font=("Poppins", 9), anchor='w')
-        self.Total.place(x=489.98, y=372.39, width=94.3, height=14)
-
-        self.SubtotalAmt = tk.Label(self.root, text=f"${0}", bg=self.BG_COL,
-                                    fg=self.TEXT_COL, font=("Poppins", 9), anchor='e')
-        self.SubtotalAmt.place(x=634.85, y=336.49, width=94.3, height=14)
-
-        self.TaxAmt = tk.Label(self.root, text=f"${0}", bg=self.BG_COL,
-                               fg=self.TEXT_COL, font=("Poppins", 9), anchor='e')
-        self.TaxAmt.place(x=634.85, y=354.93, width=94.3, height=14)
-
-        self.TotalAmt = tk.Label(self.root, text=f"${0}", bg=self.BG_COL,
-                                 fg=self.TEXT_COL, font=("Poppins", 9), anchor='e')
-        self.TotalAmt.place(x=634.85, y=372.39, width=94.3, height=14)
-
-        self.CheckoutFrame = tk.Frame(
-            self.root, bg=self.BG_COL, borderwidth=0, relief="groove")
-        self.CheckoutFrame.place(x=489.98, y=404.51, width=239.18, height=41)
-
-        self.TotalCost = tk.Label(self.CheckoutFrame, text="Total", bg=self.BG_COL,
-                                  fg=self.TEXT_COL, font=("Poppins", 9), anchor='w')
-
-        self.Checkout = customtkinter.CTkButton(
-            self.CheckoutFrame, width=250, fg_color='#2D2A2A', text='Checkout', anchor='w', font=('Poppins', 10))
-
-        self.Checkout.pack(anchor='ne')
-
-        self.Park = customtkinter.CTkButton(
-            self.root, width=239, height=78, text='Park', fg_color='#2D2A2A')
-        self.Park.place(x=490, y=69)
-
-        self.Stop = customtkinter.CTkButton(
-            self.root, width=239, height=78, text='Stop', fg_color='#2D2A2A', command=lambda: self.toggle_button_text(self.Stop))
-        self.Stop.place(x=490, y=203)
 
         self.scrollable_frame = customtkinter.CTkScrollableFrame(
             self.root, width=418, height=120, fg_color='black', label_anchor='w')
         self.scrollable_frame.place(x=29, y=70.51)
+
+        self.cmds = tk.Canvas(self.root, bg=self.BG_COL, height=382,
+                              width=189, highlightthickness=0)
+        self.cmds.place(x=555, y=39)
+
+        self.cmds.create_line(0, 262, 189,
+                              262, fill=self.TEXT_COL, width=1)
+
+        self.Park = customtkinter.CTkButton(
+            self.cmds, width=189, height=78, text='Park', fg_color='#473C89')
+        self.Park.place(x=0, y=0)
+
+        self.Stop = customtkinter.CTkButton(
+            self.cmds, width=189, height=78, text='Stop', fg_color='#473C89', command=lambda: self.toggle_button_text(self.Stop))
+        self.Stop.place(x=0, y=128)
+
+        self.CheckoutFrame = tk.Frame(
+            self.cmds, bg=self.BG_COL, borderwidth=0, relief="groove")
+
+        self.Checkout = customtkinter.CTkButton(
+            self.cmds, width=189, height=78,  border_color='white',  border_width=1, fg_color='black', text=f'$ {self.TotalVal} Checkout', anchor='w', font=('Nunita', 20))
+        self.Checkout.place(x=0, y=303)
+        # self.Checkout.pack(anchor='ne')
+
+       # self.TotalCost = tk.Label(self.CheckoutFrame, text="Total", bg=self.BG_COL,
+       #                           fg=self.TEXT_COL, font=("Poppins", 9), anchor='w')
 
         # socket parameters:
         # depends on server used , probs makes more sense to use it as an instance variable
@@ -106,7 +86,7 @@ class interface():
 
         print('done')
 
-        self.cmdSocket = CommandSocket(self.SERVER_IP, self.SERVER_PORT)
+        # self.cmdSocket = CommandSocket(self.SERVER_IP, self.SERVER_PORT)
 
     # Adding 10 self.Items to the frame
 
@@ -134,8 +114,9 @@ class interface():
 
         return product, price
 
+    # probs have to initialise item cnt and total cnt as an array to pass by ref
     def update_cart(self, scroll_frame):
-        global TotalVal
+        # global TotalVal
 
         if os.stat("barcodes.txt").st_size != 0:
 
@@ -145,42 +126,39 @@ class interface():
             print('a')
 
             check = ProductFr.ProductFrame(
-                scroll_frame, product, price, 1, self.remove_image)
+                scroll_frame, product, price, 1, self.remove_image, self.ItemCnt)
 
             self.frames[check.get_product()] = check
-            TotalVal = TotalVal + (check.get_price())*(check.get_quantity())
+            self.TotalVal = self.TotalVal + \
+                (check.get_price())*(check.get_quantity())
             print(check.get_quantity())
-            self.SubtotalAmt.configure(text=TotalVal)
             check.pack(anchor='w')
             self.root.update()
 
-    def barcode_run(self):
-        brs.main()
+    # def barcode_run(self):
+     #   brs.main()
 
-    def start_thread(self):  # run the scanner in the background
-        update_thread = threading.Thread(target=self.barcode_run)
-        update_thread.start()
+    # def start_thread(self):  # run the scanner in the background
+     #   update_thread = threading.Thread(target=self.barcode_run)
+      #  update_thread.start()
 
     def update_gui(self):
         while True:
 
-            global ItemCnt
+            # global ItemCnt
             self.update_cart(self.scrollable_frame)
-            self.SubtotalAmt.configure(text=f'${(self.TotalVal)}')
-            self.TaxAmt.configure(text=f'${(self.TotalVal * 0.1)}')
-            self.TotalAmt.configure(
-                text=f'${(self.TotalVal + (self.TotalVal * 0.1))}')
+
             if self.ItemCnt == 1:
                 self.Items.configure(
                     text=f'You have {self.ItemCnt} item in your cart')
             else:
                 self.Items.configure(
-                    text=f'You have {self.ItemCnt} self.Items in your cart')
+                    text=f'You have {self.ItemCnt} Items in your cart')
             self.root.update()
             time.sleep(.25)
 
     def main(self):
-        self.start_thread()
+        # self.start_thread()
         self.update_gui()
         self.root.mainloop()
 

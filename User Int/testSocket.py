@@ -127,8 +127,14 @@ def toggle_button_text(button):
     update_gui()
 
 
+def parking(button):
+    if button.cget("text") == 'Park':
+        cmdSocket.sendCommand(PARK)
+    update_gui()
+
+
 Park = customtkinter.CTkButton(
-    root, width=239, height=78, text='Park', fg_color='#2D2A2A')
+    root, width=239, height=78, text='Park', fg_color='#2D2A2A', command=lambda: parking(Park))
 Park.place(x=490, y=69)
 
 Stop = customtkinter.CTkButton(

@@ -11,7 +11,7 @@ class ProductFrame(tk.Frame):
         self.fixed = price
         self.price = price
         self.quantity = quantity
-        global ItemCnt
+        # global ItemCnt
         ItemCnt += 1
 
         self.product_label = tk.Label(self, text=self.product_name, bg='black')
