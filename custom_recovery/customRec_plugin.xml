@@ -1,0 +1,7 @@
+<library path="lib/libcustom_recovery">
+  <class name="custom_recovery/RotateRecovery" type="custom_recovery::RotateRecovery" base_class_type="nav_core::RecoveryBehavior">
+    <description>
+      A recovery behavior that moves away from walls.
+    </description>
+  </class>
+</library>
