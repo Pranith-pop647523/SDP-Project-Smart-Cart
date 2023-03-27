@@ -89,6 +89,10 @@ class interface():
         self.FOLLOW = '2'
         self.PARK = '3'
 
+        # socket parameters:
+
+        self.cmdSocket = CommandSocket(self.SERVER_IP, self.SERVER_PORT)
+
         print('done')
         self.root.bind('<Key>', self.on_key)
         # self.cmdSocket = CommandSocket(self.SERVER_IP, self.SERVER_PORT)
@@ -135,6 +139,11 @@ class interface():
         else:
             button.configure(text="Stop")
             self.cmdSocket.sendCommand(self.FOLLOW)
+        self.update_gui()
+
+    def parking(self, button):
+        if button.cget("text") == 'Park':
+            self.cmdSocket.sendCommand(self.PARK)
         self.update_gui()
 
     # probs have to initialise item cnt and total cnt as an array to pass by ref
@@ -210,6 +219,7 @@ class interface():
             self.scrollable_frame, pdb.product_name_list[prod])
         self.update_gui()
         self.root.mainloop()
+        self.cmdSocket.close()
 
         # close server socket
         # self.cmdSocket.close()
