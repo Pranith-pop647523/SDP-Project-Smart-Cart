@@ -1,4 +1,4 @@
-#include <rotate_recovery/rotate_recovery.h>
+#include <custom_recovery/custom_recovery.h>
 #include <pluginlib/class_list_macros.h>
 #include <nav_core/parameter_magic.h>
 #include <tf2/utils.h>
@@ -8,13 +8,16 @@
 #include <angles/angles.h>
 #include <algorithm>
 #include <string>
+#include <sensor_msgs/LaserScan.h>
 geometry_msgs::Twist vel;
-bool foundspace = false;
-// register this planner as a RecoveryBehavior plugin
-PLUGINLIB_EXPORT_CLASS(custom_recovery::CustomRecovery, nav_core::RecoveryBehavior)
+bool foundSpace = false;
 
-void callback(const sensor_msgs::LaserScan::ConstPtr &msg){
-  nums = msg->ranges;
+
+void callback(const sensor_msgs::LaserScan::ConstPtr& msg){
+  int nums[360];
+  for (int i = 0; i < 360; i++){
+    nums[i] = msg->ranges[i];
+    }
   double minVal = std::numeric_limits<double>::infinity();
   double set_deg_min_val = std::numeric_limits<double>::infinity();
   for (int i = 0; i < 360; i++){
@@ -59,6 +62,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr &msg){
     foundSpace = true;
   }
 }
+
+
+
+// register this planner as a RecoveryBehavior plugin
+PLUGINLIB_EXPORT_CLASS(custom_recovery::CustomRecovery, nav_core::RecoveryBehavior)
 
 namespace custom_recovery
 {
@@ -119,8 +127,8 @@ void CustomRecovery::runBehavior()
   ros::Rate r(frequency_);
   ros::NodeHandle n;
   ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 10);
-  ros::Subcriber scanner_sub = n.subscribe<sensor_msgs::LaserScan>("scan",callback);
-  while(!foundspace) {
+  ros::Subscriber scanner_sub = n.subscribe<sensor_msgs::LaserScan>("scan",10,callback);
+  while(!foundSpace) {
     vel_pub.publish(vel);
     r.sleep();
   }
