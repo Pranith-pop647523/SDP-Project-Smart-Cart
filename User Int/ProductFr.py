@@ -3,70 +3,71 @@ import customtkinter
 
 
 class ProductFrame(tk.Frame):
-    # remember to add remove image
-    def __init__(self, parent, product_name, price, quantity, remove_image, *args, **kwargs):
-        tk.Frame.__init__(self, parent, bg='black', *args, **kwargs)
+    def __init__(self, parent, product_name, product_price,  rem_img, remove_callback, update_callback, ** kwargs):
+        super().__init__(parent, bg='black', ** kwargs)
 
+        # Initialize the product name and price
         self.product_name = product_name
-        self.fixed = price
-        self.price = price
-        self.quantity = quantity
-        # global ItemCnt
-        ItemCnt += 1
+        print(product_name)
+        self.product_price = product_price
+        self.quantity = 1
+        self.remove_callback = remove_callback
+        self.update_callback = update_callback
+        # Create the label for the product name and add it to the frame
+        self.name_label = tk.Label(
+            self, text=self.product_name, bg='black', font=("Poppins", 32), anchor="w", width=9)
+        self.name_label.pack(side="left", padx=(0, 10))
 
-        self.product_label = tk.Label(self, text=self.product_name, bg='black')
-        self.price_label = tk.Label(self, text=f'${self.price}', bg='black')
-        self.quantity_label = tk.Label(
-            self, text=f'{self.quantity}', bg='black')
-        self.quantity_button_up = customtkinter.CTkButton(
-            self, width=15, height=10,  fg_color='#2D2A2A', text='+', anchor='w', font=('Poppins', 10), command=self.increase_quantity)
+        # Create the button to decrease the quantity and add it to the frame
         self.quantity_button_down = customtkinter.CTkButton(
-            self, width=15, height=10,  fg_color='#2D2A2A', text='-', anchor='w', font=('Poppins', 10), command=self.decrease_quantity)
+            self, width=32, fg_color='#6A51FF',  text='-', font=("Poppins", 32), command=self.decrease_quantity)
+        self.quantity_button_down.pack(side='left')
+
+        self.quantity_label = tk.Label(
+            self, text="1", bg='black', width=2, font=("Poppins", 32))
+        self.quantity_label.pack(side="left")
+
+        # Create the button to increase the quantity and add it to the frame
+        self.quantity_button_up = customtkinter.CTkButton(
+            self, width=32, fg_color='#6A51FF', text='+', font=("Poppins", 32), command=self.increase_quantity)
+        self.quantity_button_up.pack(side='left')
+
+        # Create the label for the product price and add it to the frame
+        self.price_label = tk.Label(
+            self, text=f"£{self.product_price:.2f}", width=6, font=("Poppins", 32), bg='black')
+        self.price_label.pack(side="left")
+
         self.remove = tk.Button(
-            self,  image=remove_image, relief='flat', borderwidth=0, font=('Poppins', 10), command=self.remove_item)
+            self,  image=rem_img, bg='black', relief='flat', borderwidth=0, font=('Poppins', 32), command=self.remove_product)
+        self.remove.pack(side='left')
+        # Create the label for the change in price and add it to the frame
 
-        self.product_label.pack(side='left', padx=50)
-        self.quantity_button_down.pack(side='left', padx=5)
-        self.quantity_label.pack(side='left', padx=5)
-        self.quantity_button_up.pack(side='left', padx=5)
-        self.price_label.pack(side='left', padx=50)
-        self.remove.pack(side='left', padx=5)
+    def remove_product(self):
 
-    def increase_quantity(self):
-        global TotalVal
-        global ItemCnt
-        TotalVal += self.fixed
-        ItemCnt += 1
-        self.quantity += 1
-        self.quantity_label.config(text=f'{self.quantity}')
-        self.price = int(self.fixed) * int(self.quantity)
-        self.price_label.configure(text=f'${(self.price)}')
+        # call the callback function with this ProductFrame object as an argument
+        self.destroy()
+        self.remove_callback(self)
 
     def decrease_quantity(self):
-        global TotalVal
-        global ItemCnt
-        if self.quantity > 1:
-            ItemCnt -= 1
-            TotalVal -= self.fixed
-            self.quantity -= 1
-            self.quantity_label.config(text=f'{self.quantity}')
-            self.price = int(self.fixed) * int(self.quantity)
-            self.price_label.configure(text=f'${(self.price)}')
+        # Decrease the quantity and update the quantity label
+        if self.quantity == 1:
+            return
 
-    def get_product(self):
-        return self.product_name
+        self.quantity -= 1
+        self.quantity_label.config(text=f"{self.quantity}")
 
-    def get_price(self):  # getters
-        return int(self.price)
+        # Update the change in price label
+        change = self.product_price
+        self.price_label.config(text=f"£{change*self.quantity:.2f}")
+        self.update_callback(self)
 
-    def get_quantity(self):
-        return int(self.quantity)
+    def increase_quantity(self):
+        # Increase the quantity and update the quantity label
+        self.quantity += 1
+        self.quantity_label.config(text=f"{self.quantity}")
 
-    def remove_item(self):
-        global TotalVal
-        global ItemCnt
-        TotalVal -= self.fixed*self.quantity
-        ItemCnt -= self.quantity
-        self.quantity = 0
-        self.price = 0
-        self.pack_forget()
+        # Update the change in price label
+        change = self.product_price
+
+        self.price_label.config(text=f"£{change*self.quantity:.2f}")
+        self.update_callback(self)
